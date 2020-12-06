@@ -1,0 +1,4 @@
+function scheduleHtmlProvider(iframeContent = "", frameContent = "", dom = document) {
+  var tableKC = document.getElementsByClassName('ui-panel-content ui-widget-content');
+  return tableKC[0].innerHTML
+}
