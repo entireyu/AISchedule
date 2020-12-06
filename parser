@@ -1,0 +1,88 @@
+function scheduleHtmlParser(html) {
+    let result = []
+
+// 清掉特殊字符的方法
+function clearOtherChar(str){
+    str = str.replace(/\s+/g,"");//删除所有空格
+    str = str.replace(/\n/g,"");//删除所有换行符
+    return str;
+}
+// 获取周数
+function getWeekArr(week){
+    let weekRs = [];
+    week = week.replace('周',"");
+    if(week.length<=2){
+        weekRs.push(week.substring(1));
+    }else{
+        let beginWeek = week.split('-')[0];
+        let endWeek = week.split('-')[1];
+        for(let k = Number(beginWeek);k<=Number(endWeek);k++){
+            weekRs.push(k);
+        }
+    }
+    return weekRs;
+}
+// 获取节数
+function getSections(section){
+    let sectionRs = [];
+    section = section.replace('节',"");
+        let beginWeek = section.split('-')[0];
+        let endWeek = section.split('-')[1];
+        for(let k = Number(beginWeek);k<=Number(endWeek);k++){
+            let sc = {"section": k};
+            sectionRs.push(sc);
+        }
+    
+    return sectionRs;
+}
+// 返回指定格式的上课时间
+function returnScTimes(section,startTime,endTime){
+    return {"section": section,"startTime":startTime,"endTime":endTime};
+}
+// 获取上课时间表
+function getSectionTimeArr(){
+    return [returnScTimes(1,"08:00","08:40"),
+    returnScTimes(2,"08:50","09:30"),
+    returnScTimes(3,"09:45","10:25"),
+    returnScTimes(4,"10:35","11:15"),
+    returnScTimes(5,"11:20","12:00"),
+    returnScTimes(6,"12:50","13:30"),
+    returnScTimes(7,"13:40","14:20"),
+    returnScTimes(8,"14:30","15:10"),
+    returnScTimes(9,"15:15","15:55"),
+    returnScTimes(10,"16:10","16:50"),
+    returnScTimes(11,"16:55","17:35"),
+    returnScTimes(12,"18:45","19:25"),
+    returnScTimes(13,"19:30","20:10"),
+    returnScTimes(14,"20:15","20:55"),
+    returnScTimes(15,"21:05","21:45")];
+}
+let classListBody = $('tbody');
+let classList = $(classListBody).find('tr');
+for(let i = 0;i<classList.length;i++){
+    let cellList = $(classList[i]).find('td');
+    let className = clearOtherChar($(cellList[0]).text());
+    for(let j = 3;j<10;j++){//获取课程日期
+        let classInfoMix = $(cellList[j]).find('span').text();
+        if(classInfoMix.length>116){
+
+            let classInfo =  classInfoMix.replace(/\n/g,"");
+            let timeDiff = classInfo.split('\/');//不同时间段
+            for(let a = 0;a<timeDiff.length;a++){
+                timeDiff[a] = timeDiff[a].split(' ');
+                let newClassInfo = []; 
+                for(let z =0;z<timeDiff[a].length;z++){
+                    if(timeDiff[a][z].length>0){
+                        let subUnit = timeDiff[a][z];
+                        newClassInfo.push(subUnit);
+                    }
+                }
+                
+                let classDetail = {"name": className,"position":newClassInfo[3],"teacher":newClassInfo[2],"weeks":getWeekArr(newClassInfo[0]),"day":j-2,"sections":getSections(newClassInfo[1])};
+                result.push(classDetail);
+            }
+        }
+    }
+}
+    return { courseInfos: result ,sectionTimes: getSectionTimeArr()}
+}
